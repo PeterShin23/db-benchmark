@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pandas
+numpy
+pyarrow
+sentence-transformers
+qdrant-client
+weaviate-client
+redis
+psycopg[binary]
+neo4j
+python-dotenv
+beir

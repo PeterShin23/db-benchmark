@@ -1,0 +1,13 @@
+.env
+.venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.log
+
+# FiQA
+data/fiqa/
+data/fiqa.zip
