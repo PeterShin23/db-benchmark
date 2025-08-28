@@ -1,8 +1,8 @@
 {
   "meta": {
     "schema_version": "1.0",
-    "timestamp": "2025-08-28T04:01:12.555975Z",
-    "git_commit": "89413b2",
+    "timestamp": "2025-08-28T11:56:04.911956Z",
+    "git_commit": "7fa46d6",
     "runner": "vecgraphbench@local"
   },
   "context": {
@@ -15,7 +15,7 @@
     "normalized": true
   },
   "db": {
-    "name": "neo4j",
+    "name": "weaviate",
     "version": "",
     "host": "localhost",
     "collection": "vectors",
@@ -28,34 +28,34 @@
   },
   "metrics": {
     "performance": {
-      "index_build_time_sec": 253.3183732032776,
-      "upsert_rate_vps": 227.5318575243963,
+      "index_build_time_sec": 10.062108755111694,
+      "upsert_rate_vps": 5728.222721774805,
       "mem_peak_gb": null,
       "disk_index_bytes": null,
       "latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 22.138559818267822,
+        "p95": 19.313299655914307,
         "p99": null
       },
       "embed_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 14.591288566589355,
+        "p95": 13.559162616729731,
         "p99": null
       },
       "search_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 8.166372776031494,
+        "p95": 5.872797966003418,
         "p99": null
       },
-      "qps": 59.79366692584723
+      "qps": 74.62935022953
     },
     "retrieval": {
-      "recall@10": 0.4099201681377607,
-      "mrr@10": 0.42431474132863023,
-      "ndcg@10": 0.3489864113599312,
+      "recall@10": 0.46485042306801566,
+      "mrr@10": 0.470606750930825,
+      "ndcg@10": 0.39310723943162384,
       "precision@10": null
     },
     "rag": null,

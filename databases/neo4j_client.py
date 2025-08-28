@@ -35,20 +35,21 @@ class Neo4jVectorDB(VectorDB):
             UNWIND $rows AS r
             MERGE (d:{LABEL} {{id: r.id}})
             SET d.doc_id = r.doc_id,
+                d.text = r.text,
                 d.emb = r.emb
-            """, rows=rows)
+            """, rows=[{"id": ids[i], "doc_id": metas[i].get("doc_id",""), "text": metas[i].get("text",""), "emb": vectors[i]} for i in range(len(ids))])
 
     def search(self, query_vec: List[float], k: int = 10) -> List[Tuple[str, float, Dict]]:
         with self.driver.session() as s:
             res = s.run(f"""
             CALL db.index.vector.queryNodes('{INDEX}', $k, $q) YIELD node, score
-            RETURN node.id AS id, node.doc_id AS doc_id, score
+            RETURN node.id AS id, node.doc_id AS doc_id, node.text AS text, score
             """, k=k, q=query_vec)
             out = []
             for r in res:
                 # Neo4j returns a *distance* for `score` with cosine; convert to similarity
                 sim = 1.0 - float(r["score"])
-                out.append((str(r["id"]), sim, {"doc_id": str(r["doc_id"]) if r["doc_id"] is not None else ""}))
+                out.append((str(r["id"]), sim, {"doc_id": str(r["doc_id"]) if r["doc_id"] is not None else "", "text": str(r["text"]) if r["text"] is not None else ""}))
             return out
 
     def clear(self):

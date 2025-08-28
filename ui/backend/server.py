@@ -58,12 +58,30 @@ def get_db_client(db_name: str):
 # Model cache
 model_cache = {}
 
+# Data cache for document text
+data_cache = {}
+
 def get_model():
     global model_cache
     model_name = "intfloat/e5-base-v2"
     if model_name not in model_cache:
         model_cache[model_name] = SentenceTransformer(model_name)
     return model_cache[model_name]
+
+def get_document_text(doc_id: str, parquet_path: str = "embeddings/fiqa_e5.parquet") -> str:
+    """Get document text by doc_id from parquet file."""
+    global data_cache
+    
+    # Load data if not already cached
+    if parquet_path not in data_cache:
+        try:
+            df = pd.read_parquet(parquet_path)
+            data_cache[parquet_path] = dict(zip(df['doc_id'], df['text']))
+        except Exception as e:
+            print(f"Error loading parquet file: {e}")
+            data_cache[parquet_path] = {}
+    
+    return data_cache[parquet_path].get(doc_id, "")
 
 # Request models
 class IndexRequest(BaseModel):
@@ -97,10 +115,9 @@ async def index_data(request: IndexRequest):
         vectors = df['emb'].tolist()
         metas = df[['doc_id']].to_dict('records')
         
-        # Add text to metadata for pgvector
-        if request.db == "pgvector":
-            for i, meta in enumerate(metas):
-                meta['text'] = df.iloc[i]['text']
+        # Add text to metadata for all databases
+        for i, meta in enumerate(metas):
+            meta['text'] = df.iloc[i]['text']
         
         # Upsert data
         db.upsert(ids, vectors, metas)

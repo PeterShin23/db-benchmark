@@ -16,4 +16,8 @@ loader:
 	$(PYTHON) data/fiqa_loader.py
 
 embed:
-	$(PYTHON) embeddings/embed.py --input data/sample.csv --output embeddings/fiqa.parquet
+	$(PYTHON) embeddings/embed.py --input data/sample.csv --output embeddings/fiqa_e5.parquet
+
+# Example: python scripts/eval_fiqa.py --db qdrant --parquet embeddings/fiqa_e5.parquet
+index:
+	${PYTHON} scripts/eval_fiqa.py --db ${db} --parquet embeddings/fiqa_e5.parquet

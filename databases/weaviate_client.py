@@ -32,6 +32,7 @@ class WeaviateVectorDB(VectorDB):
             name=self.class_name,
             properties=[
                 Property(name="doc_id", data_type=DataType.TEXT),
+                Property(name="text", data_type=DataType.TEXT),
             ],
             vectorizer_config=Configure.Vectorizer.none(),
             vector_index_config=Configure.VectorIndex.hnsw(
@@ -47,6 +48,7 @@ class WeaviateVectorDB(VectorDB):
         for idx, vector, meta in zip(ids, vectors, metas):
             data_object = {
                 'doc_id': str(meta.get('doc_id', '')),
+                'text': str(meta.get('text', '')),
             }
             # Generate a valid UUID from the index
             obj_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, str(idx)))
@@ -70,14 +72,14 @@ class WeaviateVectorDB(VectorDB):
             near_vector=query_vec,
             limit=k,
             return_metadata=MetadataQuery(distance=True),
-            return_properties=["doc_id"]
+            return_properties=["doc_id", "text"]
         )
         
         return [
             (
                 str(obj.uuid),
                 1.0 - obj.metadata.distance,  # Convert distance to similarity
-                {'doc_id': obj.properties['doc_id']}
+                {'doc_id': obj.properties['doc_id'], 'text': obj.properties.get('text', '')}
             )
             for obj in results.objects
         ]

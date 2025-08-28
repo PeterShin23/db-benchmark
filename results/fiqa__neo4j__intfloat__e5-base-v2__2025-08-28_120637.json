@@ -1,8 +1,8 @@
 {
   "meta": {
     "schema_version": "1.0",
-    "timestamp": "2025-08-28T03:41:19.946955Z",
-    "git_commit": "89413b2",
+    "timestamp": "2025-08-28T12:06:37.449069Z",
+    "git_commit": "7fa46d6",
     "runner": "vecgraphbench@local"
   },
   "context": {
@@ -15,7 +15,7 @@
     "normalized": true
   },
   "db": {
-    "name": "qdrant",
+    "name": "neo4j",
     "version": "",
     "host": "localhost",
     "collection": "vectors",
@@ -28,34 +28,34 @@
   },
   "metrics": {
     "performance": {
-      "index_build_time_sec": 43.9638090133667,
-      "upsert_rate_vps": 1311.0328994122374,
+      "index_build_time_sec": 305.0434181690216,
+      "upsert_rate_vps": 188.9501512472016,
       "mem_peak_gb": null,
       "disk_index_bytes": null,
       "latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 23.106169700622555,
+        "p95": 21.10451459884642,
         "p99": null
       },
       "embed_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 14.691269397735594,
+        "p95": 13.507509231567383,
         "p99": null
       },
       "search_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 8.650600910186768,
+        "p95": 7.790732383728027,
         "p99": null
       },
-      "qps": 60.086347104628715
+      "qps": 62.893366973540886
     },
     "retrieval": {
-      "recall@10": 0.4643360197758346,
-      "mrr@10": 0.4721089310209681,
-      "ndcg@10": 0.393575264471241,
+      "recall@10": 0.4099201681377607,
+      "mrr@10": 0.42431474132863023,
+      "ndcg@10": 0.3489864113599312,
       "precision@10": null
     },
     "rag": null,

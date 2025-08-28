@@ -25,6 +25,7 @@ class RedisVectorDB(VectorDB):
         
         schema = (
             TextField("doc_id"),
+            TextField("text"),
             VectorField("vector",
                 "HNSW", {
                     "TYPE": "FLOAT32",
@@ -46,7 +47,8 @@ class RedisVectorDB(VectorDB):
             
             mapping = {
                 'vector': vector_bytes,
-                'doc_id': meta.get('doc_id', '')
+                'doc_id': meta.get('doc_id', ''),
+                'text': meta.get('text', '')
             }
             pipe.hset(key, mapping=mapping)
         pipe.execute()
@@ -56,14 +58,14 @@ class RedisVectorDB(VectorDB):
         query_bytes = np.array(query_vec, dtype=np.float32).tobytes()
         
         from redis.commands.search.query import Query
-        q = Query(f'*=>[KNN {k} @vector $vec as score]').sort_by('score', asc=False).return_fields('id', 'doc_id', 'score').dialect(2)
+        q = Query(f'*=>[KNN {k} @vector $vec as score]').sort_by('score', asc=False).return_fields('id', 'doc_id', 'text', 'score').dialect(2)
         results = self.client.ft(self.index_name).search(q, query_params={'vec': query_bytes})
         
         return [
             (
                 doc.id.replace(self.prefix, ''),  # Remove prefix from ID
                 1.0 - float(doc.score),  # Convert distance to similarity
-                {'doc_id': doc.doc_id}
+                {'doc_id': doc.doc_id, 'text': getattr(doc, 'text', '')}
             )
             for doc in results.docs
         ]

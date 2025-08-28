@@ -1,8 +1,8 @@
 {
   "meta": {
     "schema_version": "1.0",
-    "timestamp": "2025-08-28T03:42:20.971219Z",
-    "git_commit": "89413b2",
+    "timestamp": "2025-08-28T11:57:19.052016Z",
+    "git_commit": "7fa46d6",
     "runner": "vecgraphbench@local"
   },
   "context": {
@@ -15,7 +15,7 @@
     "normalized": true
   },
   "db": {
-    "name": "weaviate",
+    "name": "redis",
     "version": "",
     "host": "localhost",
     "collection": "vectors",
@@ -28,34 +28,34 @@
   },
   "metrics": {
     "performance": {
-      "index_build_time_sec": 10.347837924957275,
-      "upsert_rate_vps": 5570.052451342194,
+      "index_build_time_sec": 41.91081666946411,
+      "upsert_rate_vps": 1375.2535641233303,
       "mem_peak_gb": null,
       "disk_index_bytes": null,
       "latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 20.973980426788327,
+        "p95": 15.067613124847409,
         "p99": null
       },
       "embed_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 15.114951133728027,
+        "p95": 12.752032279968262,
         "p99": null
       },
       "search_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 6.926608085632322,
+        "p95": 3.037130832672119,
         "p99": null
       },
-      "qps": 67.67776664855973
+      "qps": 91.17909630103073
     },
     "retrieval": {
-      "recall@10": 0.46407881812974405,
-      "mrr@10": 0.470606750930825,
-      "ndcg@10": 0.39283372201374717,
+      "recall@10": 0.40658322730081986,
+      "mrr@10": 0.12017440721144425,
+      "ndcg@10": 0.17673847057661285,
       "precision@10": null
     },
     "rag": null,

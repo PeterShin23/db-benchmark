@@ -1,8 +1,8 @@
 {
   "meta": {
     "schema_version": "1.0",
-    "timestamp": "2025-08-28T03:39:40.936659Z",
-    "git_commit": "89413b2",
+    "timestamp": "2025-08-28T11:55:33.694871Z",
+    "git_commit": "7fa46d6",
     "runner": "vecgraphbench@local"
   },
   "context": {
@@ -15,7 +15,7 @@
     "normalized": true
   },
   "db": {
-    "name": "pgvector",
+    "name": "qdrant",
     "version": "",
     "host": "localhost",
     "collection": "vectors",
@@ -28,34 +28,34 @@
   },
   "metrics": {
     "performance": {
-      "index_build_time_sec": 54.82048201560974,
-      "upsert_rate_vps": 1051.3953522624627,
+      "index_build_time_sec": 43.892247915267944,
+      "upsert_rate_vps": 1313.1703828718826,
       "mem_peak_gb": null,
       "disk_index_bytes": null,
       "latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 118.52715015411377,
+        "p95": 20.82805633544921,
         "p99": null
       },
       "embed_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 22.675001621246338,
+        "p95": 14.123725891113267,
         "p99": null
       },
       "search_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 95.06347179412842,
+        "p95": 7.642972469329832,
         "p99": null
       },
-      "qps": 9.57906684309516
+      "qps": 67.8432512812707
     },
     "retrieval": {
-      "recall@10": 0.46742243952892104,
-      "mrr@10": 0.47517391730354697,
-      "ndcg@10": 0.39661041083378284,
+      "recall@10": 0.4643360197758346,
+      "mrr@10": 0.47218609151479524,
+      "ndcg@10": 0.39362256149950503,
       "precision@10": null
     },
     "rag": null,

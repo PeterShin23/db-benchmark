@@ -82,7 +82,7 @@ class PgVectorDB(VectorDB):
         
         # Search for similar vectors
         cur.execute(f"""
-            SELECT id, 1 - (embedding <=> %s::vector) AS similarity, doc_id
+            SELECT id, 1 - (embedding <=> %s::vector) AS similarity, doc_id, text
             FROM {self.table_name}
             ORDER BY embedding <=> %s::vector
             LIMIT %s
@@ -94,7 +94,7 @@ class PgVectorDB(VectorDB):
         conn.close()
         
         return [
-            (row[0], float(row[1]), {'doc_id': row[2]})
+            (row[0], float(row[1]), {'doc_id': row[2], 'text': row[3] if row[3] is not None else ''})
             for row in results
         ]
         

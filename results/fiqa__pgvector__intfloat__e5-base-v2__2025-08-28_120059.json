@@ -1,8 +1,8 @@
 {
   "meta": {
     "schema_version": "1.0",
-    "timestamp": "2025-08-28T03:43:30.375689Z",
-    "git_commit": "89413b2",
+    "timestamp": "2025-08-28T12:00:59.120254Z",
+    "git_commit": "7fa46d6",
     "runner": "vecgraphbench@local"
   },
   "context": {
@@ -15,7 +15,7 @@
     "normalized": true
   },
   "db": {
-    "name": "redis",
+    "name": "pgvector",
     "version": "",
     "host": "localhost",
     "collection": "vectors",
@@ -28,34 +28,34 @@
   },
   "metrics": {
     "performance": {
-      "index_build_time_sec": 39.00917029380798,
-      "upsert_rate_vps": 1477.5500110841633,
+      "index_build_time_sec": 181.2054169178009,
+      "upsert_rate_vps": 318.08099879346304,
       "mem_peak_gb": null,
       "disk_index_bytes": null,
       "latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 17.576241493225098,
+        "p95": 26.909148693084692,
         "p99": null
       },
       "embed_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 14.802980422973627,
+        "p95": 14.25594091415405,
         "p99": null
       },
       "search_latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 2.9142379760742188,
+        "p95": 12.651753425598145,
         "p99": null
       },
-      "qps": 85.61721786512524
+      "qps": 47.93515310062289
     },
     "retrieval": {
-      "recall@10": 0.40658322730081986,
-      "mrr@10": 0.12017440721144425,
-      "ndcg@10": 0.17673847057661285,
+      "recall@10": 0.4531306013944903,
+      "mrr@10": 0.46050240054869684,
+      "ndcg@10": 0.3824132597009872,
       "precision@10": null
     },
     "rag": null,
