@@ -22,7 +22,7 @@ from utils import make_result, save_result
 from utils.metrics_ir import recall_at_k, mrr_at_k, ndcg_at_k
 
 
-def get_db_client(db_name):
+def get_db_client(db_name, use_exact_search=False):
     """Get database client based on name."""
     if db_name == "qdrant":
         return QdrantVectorDB(
@@ -44,7 +44,8 @@ def get_db_client(db_name):
             port=5432,
             user="postgres",
             password="postgres",
-            database="vectordb"
+            database="vectordb",
+            use_exact_search=use_exact_search
         )
     elif db_name == "neo4j":
         return Neo4jVectorDB(
@@ -69,15 +70,28 @@ def load_qrels(qrels_path):
     """Load qrels from TSV file."""
     qrels = {}
     with open(qrels_path, 'r') as f:
-        # Skip header
-        next(f)
+        # Read header to determine format
+        header = next(f).strip().split('\t')
+        has_header = header[0].lower() in ['query-id', 'query_id', 'qid']
+        
+        # Reset file pointer if no header
+        if not has_header:
+            f.seek(0)
+        
         for line in f:
             parts = line.strip().split('\t')
-            query_id, corpus_id, score = parts[0], parts[1], int(parts[2])
-            if query_id not in qrels:
-                qrels[query_id] = []
-            if score > 0:  # Only consider relevant documents
-                qrels[query_id].append(corpus_id)
+            # Handle both 3-column and 4-column formats
+            if len(parts) >= 3:
+                if len(parts) == 4:
+                    # 4-column format: qid, 0, docid, rel
+                    query_id, _, corpus_id, score = parts[0], parts[1], parts[2], int(parts[3])
+                else:
+                    # 3-column format: qid, docid, rel
+                    query_id, corpus_id, score = parts[0], parts[1], int(parts[2])
+                if query_id not in qrels:
+                    qrels[query_id] = []
+                if score > 0:  # Only consider relevant documents
+                    qrels[query_id].append(corpus_id)
     return qrels
 
 
@@ -85,12 +99,13 @@ def main():
     parser = argparse.ArgumentParser(description='Evaluate vector database on FiQA dataset')
     parser.add_argument('--db', required=True, help='Database to evaluate (qdrant, weaviate, pgvector, redis, neo4j)')
     parser.add_argument('--parquet', required=True, help='Path to embeddings parquet file')
+    parser.add_argument('--exact-search', action='store_true', help='Use exact search instead of ANN')
     
     args = parser.parse_args()
     
     # Initialize database client
     print(f"Initializing {args.db} client...")
-    db = get_db_client(args.db)
+    db = get_db_client(args.db, use_exact_search=args.exact_search)
     
     try:
         # Load data
@@ -133,11 +148,14 @@ def main():
         
         # Initialize model
         print("Loading model...")
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model_name = "intfloat/e5-base-v2"
+        model = SentenceTransformer(model_name)
         
         # Evaluate
         print("Running evaluation...")
         latencies = []
+        embed_latencies = []
+        search_latencies = []
         recalls = []
         mrrs = []
         ndcgs = []
@@ -156,9 +174,15 @@ def main():
             if not truth_ids:
                 continue
                 
+            # Format query for E5 model
+            if 'e5' in model_name.lower():
+                formatted_query = 'query: ' + query_text
+            else:
+                formatted_query = query_text
+                
             # Embed query
             start_time = time.time()
-            query_vec = model.encode(query_text, normalize_embeddings=True)
+            query_vec = model.encode(formatted_query, normalize_embeddings=True)
             embed_time = time.time() - start_time
             
             # Search
@@ -166,12 +190,16 @@ def main():
             results = db.search(query_vec, k=10)
             search_time = time.time() - start_time
             
-            # Total latency
-            latency_ms = (embed_time + search_time) * 1000
-            latencies.append(latency_ms)
+            # Separate latencies
+            embed_latency_ms = embed_time * 1000
+            search_latency_ms = search_time * 1000
+            total_latency_ms = embed_latency_ms + search_latency_ms
+            latencies.append(total_latency_ms)
+            embed_latencies.append(embed_latency_ms)
+            search_latencies.append(search_latency_ms)
             
-            # Extract retrieved IDs
-            retrieved_ids = [str(result[0]) for result in results]
+            # Extract retrieved IDs - use doc_id from metadata instead of database ID
+            retrieved_ids = [str(result[2].get('doc_id', result[0])) for result in results]
             
             # Compute metrics
             recalls.append(recall_at_k(truth_ids, retrieved_ids, 10))
@@ -185,12 +213,16 @@ def main():
         mean_mrr = np.mean(mrrs) if mrrs else 0.0
         mean_ndcg = np.mean(ndcgs) if ndcgs else 0.0
         p95_latency = np.percentile(latencies, 95) if latencies else 0.0
+        p95_embed_latency = np.percentile(embed_latencies, 95) if embed_latencies else 0.0
+        p95_search_latency = np.percentile(search_latencies, 95) if search_latencies else 0.0
         qps = len(eval_queries) / eval_time if eval_time > 0 else 0.0
         
         print(f"Mean Recall@10: {mean_recall:.4f}")
         print(f"Mean MRR@10: {mean_mrr:.4f}")
         print(f"Mean nDCG@10: {mean_ndcg:.4f}")
-        print(f"95th percentile latency: {p95_latency:.2f} ms")
+        print(f"95th percentile total latency: {p95_latency:.2f} ms")
+        print(f"95th percentile embed latency: {p95_embed_latency:.2f} ms")
+        print(f"95th percentile search latency: {p95_search_latency:.2f} ms")
         print(f"QPS: {qps:.2f}")
         
         # Create result
@@ -198,7 +230,7 @@ def main():
             dataset="fiqa",
             dataset_size=len(df),
             queries_count=len(eval_queries),
-            model_name="all-MiniLM-L6-v2",
+            model_name=model_name,
             vector_dim=dim,
             dtype="float32",
             normalized=True,
@@ -214,6 +246,8 @@ def main():
                 "mem_peak_gb": None,
                 "disk_index_bytes": None,
                 "latency_ms": {"p50": None, "p90": None, "p95": p95_latency, "p99": None},
+                "embed_latency_ms": {"p50": None, "p90": None, "p95": p95_embed_latency, "p99": None},
+                "search_latency_ms": {"p50": None, "p90": None, "p95": p95_search_latency, "p99": None},
                 "qps": qps
             },
             retrieval={
@@ -226,7 +260,7 @@ def main():
         )
         
         # Save result
-        filepath = save_result(result, "fiqa", args.db, "all-MiniLM-L6-v2")
+        filepath = save_result(result, "fiqa", args.db, model_name.replace('/', '__'))
         print(f"Results saved to {filepath}")
     finally:
         # Close database connection

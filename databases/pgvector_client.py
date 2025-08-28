@@ -5,7 +5,7 @@ import numpy as np
 from .base import VectorDB
 
 class PgVectorDB(VectorDB):
-    def __init__(self, host='localhost', port=5432, user='postgres', password='postgres', database='vectordb'):
+    def __init__(self, host='localhost', port=5432, user='postgres', password='postgres', database='vectordb', use_exact_search=False):
         self.connection_params = {
             'host': host,
             'port': port,
@@ -14,6 +14,7 @@ class PgVectorDB(VectorDB):
             'database': database
         }
         self.table_name = 'vectors'
+        self.use_exact_search = use_exact_search
         
     def setup(self, dim: int):
         conn = psycopg2.connect(**self.connection_params)
@@ -32,8 +33,9 @@ class PgVectorDB(VectorDB):
             )
         """)
         
-        # Create index
-        cur.execute(f"CREATE INDEX ON {self.table_name} USING hnsw (embedding vector_cosine_ops)")
+        # Create index only if not using exact search
+        if not self.use_exact_search:
+            cur.execute(f"CREATE INDEX ON {self.table_name} USING hnsw (embedding vector_cosine_ops)")
         
         conn.commit()
         cur.close()

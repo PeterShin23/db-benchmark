@@ -72,6 +72,26 @@
             border-radius: 4px;
             font-size: 0.9em;
         }
+        #resultsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #resultsTable th, #resultsTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #resultsTable th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        #resultsTable tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .metric-value {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -121,6 +141,32 @@
         </select>
         <button id="clearButton">Clear Database</button>
         <div id="clearStatus"></div>
+    </div>
+    
+    <div class="panel">
+        <h2>Benchmark Results</h2>
+        <button id="loadResultsButton">Load Results</button>
+        <div id="resultsContainer">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Database</th>
+                        <th>Model</th>
+                        <th>Recall@10</th>
+                        <th>nDCG@10</th>
+                        <th>MRR@10</th>
+                        <th>Total Latency (ms)</th>
+                        <th>Embed Latency (ms)</th>
+                        <th>Search Latency (ms)</th>
+                        <th>QPS</th>
+                        <th>Index Time (s)</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    <!-- Results will be loaded here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -226,6 +272,42 @@
                 }
             } catch (error) {
                 status.innerHTML = `Error: ${error.message}`;
+            }
+        });
+        
+        // Load benchmark results
+        document.getElementById('loadResultsButton').addEventListener('click', async () => {
+            const tableBody = document.getElementById('resultsTableBody');
+            tableBody.innerHTML = '<tr><td colspan="10">Loading...</td></tr>';
+            
+            try {
+                const response = await fetch('/results/detailed');
+                const results = await response.json();
+                
+                if (response.ok) {
+                    if (results.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="10">No results found.</td></tr>';
+                    } else {
+                        tableBody.innerHTML = results.map(result => `
+                            <tr>
+                                <td>${result.db}</td>
+                                <td>${result.model}</td>
+                                <td class="metric-value">${result['recall@10'] ? result['recall@10'].toFixed(4) : 'N/A'}</td>
+                                <td class="metric-value">${result['ndcg@10'] ? result['ndcg@10'].toFixed(4) : 'N/A'}</td>
+                                <td class="metric-value">${result['mrr@10'] ? result['mrr@10'].toFixed(4) : 'N/A'}</td>
+                                <td class="metric-value">${result.total_p95_ms ? result.total_p95_ms.toFixed(2) : 'N/A'}</td>
+                                <td class="metric-value">${result.embed_p95_ms ? result.embed_p95_ms.toFixed(2) : 'N/A'}</td>
+                                <td class="metric-value">${result.search_p95_ms ? result.search_p95_ms.toFixed(2) : 'N/A'}</td>
+                                <td class="metric-value">${result.qps ? result.qps.toFixed(2) : 'N/A'}</td>
+                                <td class="metric-value">${result.index_build_time_sec ? result.index_build_time_sec.toFixed(2) : 'N/A'}</td>
+                            </tr>
+                        `).join('');
+                    }
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="10">Error: ${results.detail}</td></tr>`;
+                }
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="10">Error: ${error.message}</td></tr>`;
             }
         });
     </script>

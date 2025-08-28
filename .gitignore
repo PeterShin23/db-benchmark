@@ -10,7 +10,7 @@ __pycache__/
 
 # FiQA
 data/fiqa.zip
-/embeddings/fiqa.parquet
+/embeddings/*.parquet
 
 # Mine
 todo.md

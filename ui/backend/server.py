@@ -158,6 +158,43 @@ def list_results():
     except Exception:
         return load_results()
 
+@app.get("/results/detailed")
+def get_detailed_results():
+    import glob
+    import json
+    import os
+    
+    # Get all JSON files in results directory
+    files = glob.glob("results/*.json")
+    
+    # Load all results with detailed metrics
+    results = []
+    for file in files:
+        try:
+            with open(file, "r") as f:
+                data = json.load(f)
+                # Extract detailed metrics
+                result = {
+                    "file": os.path.basename(file),
+                    "db": data["db"]["name"],
+                    "dataset": data["context"]["dataset"],
+                    "model": data["context"]["model_name"],
+                    "recall@10": data["metrics"]["retrieval"]["recall@10"],
+                    "ndcg@10": data["metrics"]["retrieval"]["ndcg@10"],
+                    "mrr@10": data["metrics"]["retrieval"]["mrr@10"],
+                    "total_p95_ms": data["metrics"]["performance"]["latency_ms"]["p95"],
+                    "embed_p95_ms": data["metrics"]["performance"].get("embed_latency_ms", {}).get("p95"),
+                    "search_p95_ms": data["metrics"]["performance"].get("search_latency_ms", {}).get("p95"),
+                    "qps": data["metrics"]["performance"]["qps"],
+                    "index_build_time_sec": data["metrics"]["performance"]["index_build_time_sec"]
+                }
+                results.append(result)
+        except Exception as e:
+            print(f"Error loading {file}: {e}")
+            continue
+    
+    return results
+
 # Serve frontend
 from fastapi.staticfiles import StaticFiles
 app.mount("/", StaticFiles(directory="ui/frontend", html=True), name="frontend")

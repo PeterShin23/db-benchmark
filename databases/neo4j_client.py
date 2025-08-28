@@ -2,66 +2,58 @@ from typing import List, Dict, Tuple
 from neo4j import GraphDatabase
 from .base import VectorDB
 
+LABEL = "Doc"
+INDEX = "doc_emb_idx"
+
 class Neo4jVectorDB(VectorDB):
     def __init__(self, uri='bolt://localhost:7687', user='neo4j', password='password'):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
-        
+        self.dim = None
+
     def setup(self, dim: int):
-        # For Neo4j, we don't need to set up a specific schema for vectors
-        # We'll handle this in the upsert method
-        pass
-        
+        self.dim = dim
+        with self.driver.session() as s:
+            # Wipe label to keep runs reproducible
+            s.run(f"MATCH (n:{LABEL}) DETACH DELETE n")
+            # Create vector index (Neo4j 5 native)
+            s.run(f"""
+            CREATE VECTOR INDEX {INDEX} IF NOT EXISTS
+            FOR (d:{LABEL})
+            ON d.emb
+            OPTIONS {{
+              indexConfig: {{
+                `vector.dimensions`: $dim,
+                `vector.similarity_function`: 'cosine'
+              }}
+            }}
+            """, dim=dim)
+
     def upsert(self, ids: List[str], vectors: List[List[float]], metas: List[Dict]):
-        # This is a simplified implementation that just clears and creates CO_OCCURS edges
-        # between entities in the same document
-        with self.driver.session() as session:
-            # Clear existing CO_OCCURS relationships
-            session.write_transaction(self._clear_cooccurs)
-            
-            # Group by doc_id to create CO_OCCURS relationships
-            doc_entities = {}
-            for idx, meta in zip(ids, metas):
-                doc_id = meta.get('doc_id', '')
-                # In a real implementation, we would extract entities from the text
-                # For this demo, we'll just use the doc_id as the entity
-                if doc_id not in doc_entities:
-                    doc_entities[doc_id] = []
-                doc_entities[doc_id].append(idx)
-                
-            # Create CO_OCCURS relationships
-            for doc_id, entity_ids in doc_entities.items():
-                if len(entity_ids) > 1:
-                    session.write_transaction(self._create_cooccurs, entity_ids)
-        
+        rows = [{"id": ids[i], "doc_id": metas[i].get("doc_id",""), "emb": vectors[i]} for i in range(len(ids))]
+        with self.driver.session() as s:
+            s.run(f"""
+            UNWIND $rows AS r
+            MERGE (d:{LABEL} {{id: r.id}})
+            SET d.doc_id = r.doc_id,
+                d.emb = r.emb
+            """, rows=rows)
+
     def search(self, query_vec: List[float], k: int = 10) -> List[Tuple[str, float, Dict]]:
-        # For this demo, we'll return empty results as Neo4j is used for graph operations
-        # not vector search
-        return []
-        
+        with self.driver.session() as s:
+            res = s.run(f"""
+            CALL db.index.vector.queryNodes('{INDEX}', $k, $q) YIELD node, score
+            RETURN node.id AS id, node.doc_id AS doc_id, score
+            """, k=k, q=query_vec)
+            out = []
+            for r in res:
+                # Neo4j returns a *distance* for `score` with cosine; convert to similarity
+                sim = 1.0 - float(r["score"])
+                out.append((str(r["id"]), sim, {"doc_id": str(r["doc_id"]) if r["doc_id"] is not None else ""}))
+            return out
+
     def clear(self):
-        with self.driver.session() as session:
-            session.write_transaction(self._clear_database)
-            
-    @staticmethod
-    def _clear_cooccurs(tx):
-        tx.run("MATCH ()-[r:CO_OCCURS]->() DELETE r")
-        
-    @staticmethod
-    def _clear_database(tx):
-        tx.run("MATCH (n) DETACH DELETE n")
-        
-    @staticmethod
-    def _create_cooccurs(tx, entity_ids):
-        # Create CO_OCCURS relationships between all entities in the same document
-        for i in range(len(entity_ids)):
-            for j in range(i+1, len(entity_ids)):
-                tx.run("""
-                    MERGE (a:Entity {id: $id1})
-                    MERGE (b:Entity {id: $id2})
-                    MERGE (a)-[:CO_OCCURS]->(b)
-                    """, 
-                    id1=entity_ids[i], id2=entity_ids[j]
-                )
+        with self.driver.session() as s:
+            s.run(f"MATCH (n:{LABEL}) DETACH DELETE n")
 
     def close(self):
         self.driver.close()

@@ -6,8 +6,11 @@ venv: requirements.txt
 	$(PYTHON) -m pip install --upgrade pip
 	$(PYTHON) -m pip install -r requirements.txt
 
-run:
-	$(PYTHON) -m uvicorn ui.backend.server:app --reload --port 8000
+run-server:
+	$(PYTHON) -m uvicorn ui.backend.server:app --reload --port 8002
+
+run-fe:
+	open http://localhost:8002
 
 loader:
 	$(PYTHON) data/fiqa_loader.py

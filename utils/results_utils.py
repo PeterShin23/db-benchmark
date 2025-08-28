@@ -101,6 +101,18 @@ def make_result(
                     "p95": None,
                     "p99": None
                 },
+                "embed_latency_ms": {
+                    "p50": None,
+                    "p90": None,
+                    "p95": None,
+                    "p99": None
+                },
+                "search_latency_ms": {
+                    "p50": None,
+                    "p90": None,
+                    "p95": None,
+                    "p99": None
+                },
                 "qps": None
             } | (performance or {}),
             "retrieval": {

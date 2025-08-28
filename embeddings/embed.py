@@ -6,7 +6,7 @@ import pyarrow.parquet as pq
 from sentence_transformers import SentenceTransformer
 import os
 
-def embed_csv_to_parquet(input_path, output_path, model_name='all-MiniLM-L6-v2', use_float16=False):
+def embed_csv_to_parquet(input_path, output_path, model_name='intfloat/e5-base-v2', use_float16=False):
     # Load the CSV file
     df = pd.read_csv(input_path)
     
@@ -20,8 +20,14 @@ def embed_csv_to_parquet(input_path, output_path, model_name='all-MiniLM-L6-v2',
     # Initialize the sentence transformer model
     model = SentenceTransformer(model_name)
     
+    # Format documents for E5 model
+    if 'e5' in model_name.lower():
+        formatted_texts = ['passage: ' + text for text in df['text'].tolist()]
+    else:
+        formatted_texts = df['text'].tolist()
+    
     # Generate embeddings
-    embeddings = model.encode(df['text'].tolist(), normalize_embeddings=True)
+    embeddings = model.encode(formatted_texts, normalize_embeddings=True)
     
     # Convert to appropriate dtype
     if use_float16:

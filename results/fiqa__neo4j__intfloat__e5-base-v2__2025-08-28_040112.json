@@ -1,16 +1,16 @@
 {
   "meta": {
     "schema_version": "1.0",
-    "timestamp": "2025-08-28T01:36:46.845922Z",
-    "git_commit": "29ec909",
+    "timestamp": "2025-08-28T04:01:12.555975Z",
+    "git_commit": "89413b2",
     "runner": "vecgraphbench@local"
   },
   "context": {
     "dataset": "fiqa",
     "dataset_size": 57638,
     "queries_count": 648,
-    "model_name": "all-MiniLM-L6-v2",
-    "vector_dim": 384,
+    "model_name": "intfloat/e5-base-v2",
+    "vector_dim": 768,
     "dtype": "float32",
     "normalized": true
   },
@@ -28,22 +28,34 @@
   },
   "metrics": {
     "performance": {
-      "index_build_time_sec": 0.8001019954681396,
-      "upsert_rate_vps": 72038.31552285532,
+      "index_build_time_sec": 253.3183732032776,
+      "upsert_rate_vps": 227.5318575243963,
       "mem_peak_gb": null,
       "disk_index_bytes": null,
       "latency_ms": {
         "p50": null,
         "p90": null,
-        "p95": 6.630766391754146,
+        "p95": 22.138559818267822,
         "p99": null
       },
-      "qps": 194.11203710620828
+      "embed_latency_ms": {
+        "p50": null,
+        "p90": null,
+        "p95": 14.591288566589355,
+        "p99": null
+      },
+      "search_latency_ms": {
+        "p50": null,
+        "p90": null,
+        "p95": 8.166372776031494,
+        "p99": null
+      },
+      "qps": 59.79366692584723
     },
     "retrieval": {
-      "recall@10": 0.0,
-      "mrr@10": 0.0,
-      "ndcg@10": 0.0,
+      "recall@10": 0.4099201681377607,
+      "mrr@10": 0.42431474132863023,
+      "ndcg@10": 0.3489864113599312,
       "precision@10": null
     },
     "rag": null,
