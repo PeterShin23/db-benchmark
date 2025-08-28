@@ -38,6 +38,13 @@ class PgVectorDB(VectorDB):
         conn.commit()
         cur.close()
         conn.close()
+
+    def close(self):
+        """Close the database connection"""
+        # PgVector client creates new connections for each operation,
+        # so there's no persistent connection to close.
+        # This method is included for interface consistency.
+        pass
         
     def upsert(self, ids: List[str], vectors: List[List[float]], metas: List[Dict]):
         conn = psycopg2.connect(**self.connection_params)
@@ -45,7 +52,7 @@ class PgVectorDB(VectorDB):
         
         # Prepare data for insertion
         data = [
-            (idx, meta.get('doc_id', ''), meta.get('text', ''), vector)
+            (idx, meta.get('doc_id', ''), meta.get('text', ''), np.array(vector, dtype=np.float32).tolist())
             for idx, vector, meta in zip(ids, vectors, metas)
         ]
         
@@ -73,9 +80,9 @@ class PgVectorDB(VectorDB):
         
         # Search for similar vectors
         cur.execute(f"""
-            SELECT id, 1 - (embedding <=> %s) AS similarity, doc_id
+            SELECT id, 1 - (embedding <=> %s::vector) AS similarity, doc_id
             FROM {self.table_name}
-            ORDER BY embedding <=> %s
+            ORDER BY embedding <=> %s::vector
             LIMIT %s
         """, (query_array, query_array, k))
         

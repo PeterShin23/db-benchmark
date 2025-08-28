@@ -7,7 +7,7 @@ sentence-transformers
 qdrant-client
 weaviate-client
 redis
-psycopg[binary]
+psycopg2-binary
 neo4j
 python-dotenv
 beir

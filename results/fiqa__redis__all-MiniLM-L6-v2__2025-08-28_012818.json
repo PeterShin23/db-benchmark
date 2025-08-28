@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "timestamp": "2025-08-28T01:28:18.485837Z",
+    "git_commit": "29ec909",
+    "runner": "vecgraphbench@local"
+  },
+  "context": {
+    "dataset": "fiqa",
+    "dataset_size": 57638,
+    "queries_count": 648,
+    "model_name": "all-MiniLM-L6-v2",
+    "vector_dim": 384,
+    "dtype": "float32",
+    "normalized": true
+  },
+  "db": {
+    "name": "redis",
+    "version": "",
+    "host": "localhost",
+    "collection": "vectors",
+    "params": {}
+  },
+  "workload": {
+    "top_k": 10,
+    "concurrency": 1,
+    "warmup_queries": 0
+  },
+  "metrics": {
+    "performance": {
+      "index_build_time_sec": 20.87521195411682,
+      "upsert_rate_vps": 2761.073761870626,
+      "mem_peak_gb": null,
+      "disk_index_bytes": null,
+      "latency_ms": {
+        "p50": null,
+        "p90": null,
+        "p95": 9.56660509109497,
+        "p99": null
+      },
+      "qps": 110.71130205942545
+    },
+    "retrieval": {
+      "recall@10": 0.41132739003109375,
+      "mrr@10": 0.130489417989418,
+      "ndcg@10": 0.18313110494187815,
+      "precision@10": null
+    },
+    "rag": null,
+    "graphrag": null
+  },
+  "notes": "FiQA evaluation"
+}

@@ -17,6 +17,9 @@ from databases.redis_client import RedisVectorDB
 from databases.pgvector_client import PgVectorDB
 from databases.neo4j_client import Neo4jVectorDB
 
+# Import utils
+from utils import make_result, save_result
+
 app = FastAPI()
 
 # Database factory
@@ -145,6 +148,15 @@ async def clear_data(db: str):
         return {"ok": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/results")
+def list_results():
+    from utils import load_results
+    try:
+        import pandas as pd
+        return load_results().to_dict(orient="records")
+    except Exception:
+        return load_results()
 
 # Serve frontend
 from fastapi.staticfiles import StaticFiles

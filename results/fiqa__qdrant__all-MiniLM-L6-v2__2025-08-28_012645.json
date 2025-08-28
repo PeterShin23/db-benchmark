@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "timestamp": "2025-08-28T01:26:45.911954Z",
+    "git_commit": "29ec909",
+    "runner": "vecgraphbench@local"
+  },
+  "context": {
+    "dataset": "fiqa",
+    "dataset_size": 57638,
+    "queries_count": 648,
+    "model_name": "all-MiniLM-L6-v2",
+    "vector_dim": 384,
+    "dtype": "float32",
+    "normalized": true
+  },
+  "db": {
+    "name": "qdrant",
+    "version": "",
+    "host": "localhost",
+    "collection": "vectors",
+    "params": {}
+  },
+  "workload": {
+    "top_k": 10,
+    "concurrency": 1,
+    "warmup_queries": 0
+  },
+  "metrics": {
+    "performance": {
+      "index_build_time_sec": 21.345289945602417,
+      "upsert_rate_vps": 2700.267841143786,
+      "mem_peak_gb": null,
+      "disk_index_bytes": null,
+      "latency_ms": {
+        "p50": null,
+        "p90": null,
+        "p95": 14.526462554931639,
+        "p99": null
+      },
+      "qps": 81.032930524368
+    },
+    "retrieval": {
+      "recall@10": 0.44130556086574607,
+      "mrr@10": 0.44512235449735443,
+      "ndcg@10": 0.3686713698407158,
+      "precision@10": null
+    },
+    "rag": null,
+    "graphrag": null
+  },
+  "notes": "FiQA evaluation"
+}

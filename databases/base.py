@@ -21,3 +21,8 @@ class VectorDB(ABC):
     def clear(self):
         """Clear all data from the database"""
         pass
+
+    @abstractmethod
+    def close(self):
+        """Close the database connection"""
+        pass

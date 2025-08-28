@@ -14,6 +14,9 @@ def embed_csv_to_parquet(input_path, output_path, model_name='all-MiniLM-L6-v2',
     if 'doc_id' not in df.columns:
         df['doc_id'] = df['id']
     
+    # Handle NaN values in text column
+    df['text'] = df['text'].fillna('')
+    
     # Initialize the sentence transformer model
     model = SentenceTransformer(model_name)
     

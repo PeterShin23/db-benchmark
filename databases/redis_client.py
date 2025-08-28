@@ -21,7 +21,7 @@ class RedisVectorDB(VectorDB):
             
         # Create index
         from redis.commands.search.field import VectorField, TextField
-        from redis.commands.search.indexDefinition import IndexDefinition, IndexType
+        from redis.commands.search.index_definition import IndexDefinition, IndexType
         
         schema = (
             TextField("doc_id"),
@@ -73,3 +73,8 @@ class RedisVectorDB(VectorDB):
             self.client.ft(self.index_name).dropindex(delete_documents=True)
         except:
             pass  # Index doesn't exist
+
+    def close(self):
+        """Close the database connection"""
+        if self.client:
+            self.client.close()

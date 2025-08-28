@@ -51,3 +51,8 @@ class QdrantVectorDB(VectorDB):
         collections = self.client.get_collections()
         if any(collection.name == self.collection_name for collection in collections.collections):
             self.client.delete_collection(self.collection_name)
+
+    def close(self):
+        """Close the database connection"""
+        if self.client:
+            self.client.close()

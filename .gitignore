@@ -9,5 +9,8 @@ __pycache__/
 *.log
 
 # FiQA
-data/fiqa/
 data/fiqa.zip
+/embeddings/fiqa.parquet
+
+# Mine
+todo.md
