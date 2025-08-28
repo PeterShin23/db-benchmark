@@ -43,7 +43,7 @@ A minimal, production-feeling demo that compares multiple vector databases (and 
    ```
 
 6. Open the frontend UI:
-   Open `ui/frontend/app.html` in your browser
+   Open `ui/frontend/index.html` in your browser
 
 
 ## CSV Format Expectations

@@ -60,7 +60,7 @@ model_cache = {}
 
 def get_model():
     global model_cache
-    model_name = "all-MiniLM-L6-v2"
+    model_name = "intfloat/e5-base-v2"
     if model_name not in model_cache:
         model_cache[model_name] = SentenceTransformer(model_name)
     return model_cache[model_name]
@@ -114,7 +114,15 @@ async def search_data(request: SearchRequest):
     try:
         # Get model and embed query
         model = get_model()
-        query_vec = model.encode(request.text, normalize_embeddings=True).tolist()
+        model_name = "intfloat/e5-base-v2"
+        
+        # Format query for E5 model
+        if 'e5' in model_name.lower():
+            formatted_text = 'query: ' + request.text
+        else:
+            formatted_text = request.text
+            
+        query_vec = model.encode(formatted_text, normalize_embeddings=True).tolist()
         
         # Initialize database client
         db = get_db_client(request.db)
