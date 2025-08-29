@@ -1,6 +1,16 @@
 # Vector Database Benchmark
 
-A minimal, production-feeling demo that compares multiple vector databases (and an optional graph DB) for RAG/GraphRAG. Everything runs locally with Docker.
+A minimal, production-feeling demo that compares multiple vector databases for RAG. Everything runs locally with Docker.
+
+## Learnings and Demo
+
+
+1. Weaviate and Qdrant have very similar performance across the board. Weaviate seems to win out by just a little more because it has a very fast indexing speed.
+2. Redis is fast... But in terms of retrieval, it's just not as good. If you need something fast and pretty good, Redis is a great option, especially if it's already being used in the tech stack. But Weaviate and Qdrant just seem better.
+3. Neo4j can be used as a vector database, it should really be used for GraphRAG though. Again, if it's already part of your stack, it might be great to just get up and running.
+4. Pgvector has a similar feeling to Neo4j. Pgvector is a plugin and may be the best option is Postgre is part of your stack already.
+
+My winner: Weaviate! 
 
 ## Features
 
@@ -8,10 +18,10 @@ A minimal, production-feeling demo that compares multiple vector databases (and 
   - Qdrant
   - Weaviate
   - Redis
-  - pgvector
-  - Neo4j (optional, for GraphRAG)
-- Single embedding pass over a Kaggle CSV dataset
-- Apache Parquet storage for efficient data sharing between databases
+  - Postgre (pgvector)
+  - Neo4j
+- Single embedding pass over a BEIR FiQA 2018 data
+- Apache Parquet storage for efficient embedded data sharing between databases
 - Simple web UI for indexing, searching, and clearing databases
 - All services Dockerized for easy setup
 
@@ -59,7 +69,7 @@ Optionally:
 
 1. **Prepare your data**: Place your CSV file in the `data/` directory.
 
-2. **Generate embeddings**: Run the embedding script to create a Parquet file:
+2. **Generate embeddings**: Run the embedding script to create a Parquet file (use e5):
    ```bash
    python embeddings/embed.py --input data/your_file.csv --output embeddings/your_file.parquet
    ```
@@ -69,6 +79,31 @@ Optionally:
 4. **Search**: Enter natural language queries in the search section to find similar documents.
 
 5. **Switch databases**: Use the dropdown to switch between different vector databases for comparison.
+
+## Quick Description of Metrics
+### 🔹 Recall@10
+
+#### The fraction of all relevant documents that appear anywhere in the top-10 results.
+
+Intuition: “Out of everything that should have been retrieved, how much did we actually surface within the first 10?”
+
+Why it matters: High recall means the system rarely misses relevant documents, which is critical in domains where missing evidence is costly (e.g. finance, legal, compliance).
+
+### 🔹 nDCG@10 (Normalized Discounted Cumulative Gain at 10)
+
+#### The quality of ranking of the top-10 results, with higher weight for relevant documents appearing near the top.
+
+Intuition: “Did we not only find the right answers, but also put them in the best order?”
+
+Why it matters: Users don’t just want relevant documents—they want them ranked correctly so the best answers appear first. nDCG rewards good ordering and penalizes burying good results at the bottom.
+
+### 🔹 MRR@10 (Mean Reciprocal Rank at 10)
+
+#### The reciprocal of the rank of the first relevant result, averaged across queries.
+
+Intuition: “How far does a user usually have to look before finding something useful?”
+
+Why it matters: Reflects the “time-to-first-answer” experience. High MRR means the system usually puts a relevant doc right at the top, minimizing user effort.
 
 ## Note on Apache Parquet
 
@@ -86,4 +121,4 @@ All database connection parameters can be configured through environment variabl
 
 ## License
 
-This project is licensed under the Apache-2.0 License.
+This project is licensed under the MIT License.
