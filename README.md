@@ -10,7 +10,7 @@ A minimal, production-feeling demo that compares multiple vector databases for R
 1. Weaviate and Qdrant have very similar performance across the board. Weaviate seems to win out by just a little more because it has a very fast indexing speed.
 2. Redis is fast... But in terms of retrieval, it's just not as good. If you need something fast and pretty good, Redis is a great option, especially if it's already being used in the tech stack. But Weaviate and Qdrant just seem better.
 3. Neo4j can be used as a vector database, it should really be used for GraphRAG though. Again, if it's already part of your stack, it might be great to just get up and running.
-4. Pgvector has a similar feeling to Neo4j. Pgvector is a plugin and may be the best option is Postgre is part of your stack already.
+4. Pgvector has a similar feeling to Neo4j. Pgvector is a plugin and may be the best option is Postgres is part of your stack already.
 
 My winner: Weaviate! 
 
@@ -20,7 +20,7 @@ My winner: Weaviate!
   - Qdrant
   - Weaviate
   - Redis
-  - Postgre (pgvector)
+  - Postgres (pgvector)
   - Neo4j
   - Looking to add Chroma, Pinecone, etc. in the future!
 - Single embedding pass over a BEIR FiQA 2018 data
