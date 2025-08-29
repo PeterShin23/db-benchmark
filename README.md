@@ -4,6 +4,8 @@ A minimal, production-feeling demo that compares multiple vector databases for R
 
 ## Learnings and Demo
 
+<img width="1338" height="792" alt="image" src="https://github.com/user-attachments/assets/0a46f843-dffa-4b4f-9c05-1ac98c2fdf26" />
+
 
 1. Weaviate and Qdrant have very similar performance across the board. Weaviate seems to win out by just a little more because it has a very fast indexing speed.
 2. Redis is fast... But in terms of retrieval, it's just not as good. If you need something fast and pretty good, Redis is a great option, especially if it's already being used in the tech stack. But Weaviate and Qdrant just seem better.
