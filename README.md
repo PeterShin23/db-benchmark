@@ -22,6 +22,7 @@ My winner: Weaviate!
   - Redis
   - Postgre (pgvector)
   - Neo4j
+  - Looking to add Chroma, Pinecone, etc. in the future!
 - Single embedding pass over a BEIR FiQA 2018 data
 - Apache Parquet storage for efficient embedded data sharing between databases
 - Simple web UI for indexing, searching, and clearing databases
